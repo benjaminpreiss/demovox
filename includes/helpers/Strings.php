@@ -181,8 +181,8 @@ class Strings
 			);
 		}
 		$addAttribs = '';
-		foreach ($attributes as $name => $value) {
-			$addAttribs .= ' ' . $name . '="' . $value . '"';
+		foreach ($attributes as $key => $value) {
+			$addAttribs .= ' ' . $key . '="' . $value . '"';
 		}
 		printf('<select name="%1$s" id="%2$s"%4$s>%3$s</select>', $name, $id, $optionsMarkup, $addAttribs);
 

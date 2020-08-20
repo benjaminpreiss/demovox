@@ -9,6 +9,9 @@ class Config
 	const PART_ROTATION = 'rot';
 	const PART_POS_X = 'x';
 	const PART_POS_Y = 'y';
+	const PART_POS_JSON = 'json';
+	const PART_PLUS = 'plus';
+	const PART_MINUS = 'minus';
 	const PART_PREVIOUS_LANG = 'prevLang';
 
 	/**

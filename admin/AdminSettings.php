@@ -175,12 +175,23 @@ class AdminSettings extends BaseController
 						$field['section'],
 						$field
 					);
-					$argX   = isset($field['defaultX']) ? ['default' => $field['defaultX']] : [];
-					$argY   = isset($field['defaultY']) ? ['default' => $field['defaultY']] : [];
-					$argRot = isset($field['defaultRot']) ? ['default' => $field['defaultRot']] : [];
-					register_setting($page, $id . Config::GLUE_PART . Config::PART_POS_X, $argX);
-					register_setting($page, $id . Config::GLUE_PART . Config::PART_POS_Y, $argY);
-					register_setting($page, $id . Config::GLUE_PART . Config::PART_ROTATION, $argRot);
+					//$argX   = isset($field['defaultX']) ? ['default' => $field['defaultX']] : [];
+					//$argY   = isset($field['defaultY']) ? ['default' => $field['defaultY']] : [];
+					//$argRot = isset($field['defaultRot']) ? ['default' => $field['defaultRot']] : [];
+					$defaultX   = isset($field['defaultX']) ? ['default' => $field['defaultX']] : [];
+					$defaultY   = isset($field['defaultY']) ? ['default' => $field['defaultY']] : [];
+					$defaultRot = isset($field['defaultRot']) ? ['default' => $field['defaultRot']] : [];
+					$argX   = ['x' => isset($field['defaultX']) ? $field['defaultX'] : NULL ];
+					$argY   = ['y' => isset($field['defaultY']) ? $field['defaultY'] : NULL ];
+					$argRot = ['rot' => isset($field['defaultRot']) ? $field['defaultRot'] : NULL ];
+					$argPos = array_merge($argX, $argY, $argRot);
+					$argPosJson = [
+						'default' => implode(" ", array(json_encode($argPos)))
+					];
+					register_setting($page, $id . Config::GLUE_PART . Config::PART_POS_X, $defaultX);
+					register_setting($page, $id . Config::GLUE_PART . Config::PART_POS_Y, $defaultY);
+					register_setting($page, $id . Config::GLUE_PART . Config::PART_ROTATION, $defaultRot);
+					register_setting($page, $id . Config::GLUE_PART . Config::PART_POS_JSON, $argPosJson);
 					break;
 				case'wpPage':
 					add_settings_field($id, $field['label'], $callback, $page, $field['section'], $field);
@@ -250,28 +261,101 @@ class AdminSettings extends BaseController
 				);
 				break;
 			case 'pos_rot':
-				$valuePosX = Config::getValue($uid, Config::PART_POS_X);
-				$valuePosY = Config::getValue($uid, Config::PART_POS_Y);
-				$valueRot = Config::getValue($uid, Config::PART_ROTATION);
-				printf(
-					'<input name="%1$s" id="%1$s" type="number" placeholder="%2$s" value="%3$s" size="5" />',
-					$wpid . Config::GLUE_PART . Config::PART_POS_X,
-					'x',
-					$valuePosX
-				);
-				printf(
-					'<input name="%1$s" id="%1$s" type="number" placeholder="%2$s" value="%3$s" size="5" />',
-					$wpid . Config::GLUE_PART . Config::PART_POS_Y,
-					'y',
-					$valuePosY
-				);
+				//$valuePosX = Config::getValue($uid, Config::PART_POS_X);
+				//$valuePosY = Config::getValue($uid, Config::PART_POS_Y);
+				//$valueRot = Config::getValue($uid, Config::PART_ROTATION);
+				$defaultPosX = Config::getValue($uid, Config::PART_POS_X);
+				$defaultPosY = Config::getValue($uid, Config::PART_POS_Y);
+				$defaultRot = Config::getValue($uid, Config::PART_ROTATION);
+				$defaultPosArr = [
+					'x' => $defaultPosX,
+					'y' => $defaultPosY,
+					'rot' => $defaultRot
+				];
+				$defaultPosJsonArr = [
+					json_encode($defaultPosArr)
+				];
+				$defaultPosHtmlEntity = implode(" ", $defaultPosJsonArr);
+				$valuePosHtmlEntity = Config::getValue($uid, Config::PART_POS_JSON);
+				//fallback if $valuePosHtmlEntity is empty:
+				if(!$valuePosHtmlEntity) {
+					$valuePosHtmlEntity = implode(" ", $defaultPosJsonArr);
+				}
+				$valuePosHtmlEntity = htmlspecialchars($valuePosHtmlEntity, ENT_COMPAT);
 				$options = [
 					0   => 'Normal orientation',
 					90  => 'Rotate 90° clockwise',
 					180 => 'Rotate 180°',
 					270 => 'Rotate 90° counter-clockwise',
 				];
-				Strings::createSelect($options, $valueRot, $wpid . Config::GLUE_PART . Config::PART_ROTATION);
+				$fieldCounter = 0;
+				// Print hidden field
+				printf(
+					'<input name="%1$s" id="%1$s" type="hidden" value="%3$s" />',
+					$wpid . Config::GLUE_PART . Config::PART_POS_JSON,
+					'json',
+					$valuePosHtmlEntity
+				);
+				//decode $valuePosHtmlEntity:
+				$valuePosJsonArr = explode(" ", html_entity_decode($valuePosHtmlEntity, ENT_COMPAT));
+
+				foreach($valuePosJsonArr as $valuePosJson) {
+					$valuePos = json_decode($valuePosJson, true);
+					$valuePosX = $valuePos['x'] ? $valuePos['x'] : $defaultPosArr['x'];
+					$valuePosY = $valuePos['y'] ? $valuePos['y']: $defaultPosArr['y'];
+					$valueRot = $valuePos['rot'] ? $valuePos['rot']: $defaultPosArr['rot'];
+					printf(
+						'%6$s<input 
+							name="%1$s" 
+							id="%1$s" 
+							type="number" 
+							placeholder="%2$s" 
+							value="%3$s" 
+							size="5" 
+							onchange="updateHiddenSignatureFieldPositionsInput(&quot;%1$s&quot;, %4$s, &quot;%2$s&quot;, &quot;%5$s&quot;)" 
+						/>',
+						$wpid . Config::GLUE_PART . Config::PART_POS_X . ($fieldCounter === 0 ? '' : Config::GLUE_PART . $fieldCounter ),
+						Config::PART_POS_X,
+						$valuePosX,
+						$fieldCounter,
+						$wpid . Config::GLUE_PART . Config::PART_POS_JSON,
+						$fieldCounter === 0 ? '' : '<br/>'
+					);
+					printf(
+						'<input
+							name="%1$s" 
+							id="%1$s" 
+							type="number" 
+							placeholder="%2$s" 
+							value="%3$s" 
+							size="5"
+							onchange="updateHiddenSignatureFieldPositionsInput(&quot;%1$s&quot;, %4$s, &quot;%2$s&quot;, &quot;%5$s&quot;)" 
+						/>',
+						$wpid . Config::GLUE_PART . Config::PART_POS_Y . ($fieldCounter === 0 ? '' : Config::GLUE_PART . $fieldCounter ),
+						Config::PART_POS_Y,
+						$valuePosY,
+						$fieldCounter,
+						$wpid . Config::GLUE_PART . Config::PART_POS_JSON
+					);
+					$selectName = $wpid . Config::GLUE_PART . Config::PART_ROTATION . ($fieldCounter === 0 ? '' : Config::GLUE_PART . $fieldCounter );
+					$selectOnChangeAttribute = "updateHiddenSignatureFieldPositionsInput(&quot;" . $selectName . "&quot;, " . $fieldCounter . ", &quot;" . Config::PART_ROTATION . "&quot;, &quot;" . $wpid . Config::GLUE_PART . Config::PART_POS_JSON . "&quot;)";
+					$selectAttributes = [
+						"onchange" => $selectOnChangeAttribute
+					];
+					Strings::createSelect($options, $valueRot, $selectName, $selectName, $selectAttributes);
+					$fieldCounter++;
+				}
+				//print + and - button
+				printf(
+					'<br/><button type="button" class="%1$s" onclick="removeSignatureFieldPositionsRow(&quot;%2$s&quot;)">-</button>',
+					$wpid . Config::GLUE_PART . Config::PART_MINUS,
+					$wpid . Config::GLUE_PART . Config::PART_POS_JSON
+				);
+				printf(
+					'<button type="button" class="%1$s" onclick="addSignatureFieldPositionsRow(&quot;%2$s&quot;)">+</button>',
+					$wpid . Config::GLUE_PART . Config::PART_PLUS,
+					$wpid . Config::GLUE_PART . Config::PART_POS_JSON
+				);
 				break;
 			case 'textarea': // If it is a textarea
 				$value = str_replace('"', '&quot;', Config::getValue($uid));

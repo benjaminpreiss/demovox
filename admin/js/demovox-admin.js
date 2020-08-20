@@ -191,6 +191,51 @@ var fontSize, textColor = [0, 0, 0], fontFamily = 'Helvetica';
 		}
 	};
 	global.demovoxAdminClass = demovoxAdminClass;
+	window.updateHiddenSignatureFieldPositionsInput = function(changedFieldId, changedFieldCounter, changedFieldKey, hiddenFieldId) {
+		var changedFieldValue = $("#" + changedFieldId)[0].value;
+		var hiddenFieldElement = $("#" + hiddenFieldId)[0];
+		var hiddenFieldValue = hiddenFieldElement.value;
+		//make indexable hidden field value array
+		var hiddenFieldValueArr = hiddenFieldValue.split(" ");
+		//change correct key at the right index
+		var regex = new RegExp("\"" + changedFieldKey + "\":([0-9]*|(null))+");
+		hiddenFieldValueArr[changedFieldCounter] = hiddenFieldValueArr[changedFieldCounter].replace(regex, "\"" + changedFieldKey + "\":" + changedFieldValue);
+		//join array to string again
+		hiddenFieldValue = hiddenFieldValueArr.join(" ");
+		//change hidden field value correspondingly
+		hiddenFieldElement.value = hiddenFieldValue;
+	};
+	window.addSignatureFieldPositionsRow = function (hiddenFieldId) {
+		//update hidden field to accommodate new empty array entry.
+		//trigger save by .click()
+		var hiddenFieldElement = $("#" + hiddenFieldId)[0];
+		var hiddenFieldValue = hiddenFieldElement.value;
+		//make indexable hidden field value array
+		var hiddenFieldValueArr = hiddenFieldValue.split(" ");
+		var emptyPosEntry = hiddenFieldValueArr.slice(-1);
+		console.log(hiddenFieldValueArr);
+		//add new array entry
+		hiddenFieldValueArr.push(emptyPosEntry);
+		hiddenFieldValue = hiddenFieldValueArr.join(" ");
+		hiddenFieldElement.value = hiddenFieldValue;
+		console.log(hiddenFieldValue);
+		$("#submit")[0].click();
+	};
+	window.removeSignatureFieldPositionsRow = function (hiddenFieldId) {
+		//update hidden field to accommodate new empty array entry.
+		//trigger save by .click()
+		var hiddenFieldElement = $("#" + hiddenFieldId)[0];
+		var hiddenFieldValue = hiddenFieldElement.value;
+		//make indexable hidden field value array
+		var hiddenFieldValueArr = hiddenFieldValue.split(" ");
+		if (hiddenFieldValueArr.length > 1) {
+			hiddenFieldValueArr.pop();
+			hiddenFieldValue = hiddenFieldValueArr.join(" ");
+			hiddenFieldElement.value = hiddenFieldValue;
+			console.log(hiddenFieldValue);
+			$("#submit")[0].click();
+		}
+	};
 })(jQuery);
 
 global.demovoxChart = demovoxChart;
