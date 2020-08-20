@@ -10,8 +10,6 @@ class Config
 	const PART_POS_X = 'x';
 	const PART_POS_Y = 'y';
 	const PART_POS_JSON = 'json';
-	const PART_PLUS = 'plus';
-	const PART_MINUS = 'minus';
 	const PART_PREVIOUS_LANG = 'prevLang';
 
 	/**
@@ -121,6 +119,9 @@ class Config
 					}
 					if (isset($field['defaultRot'])) {
 						self::setDefaultIfUnset($id, $field['defaultRot'], Config::PART_ROTATION);
+					}
+					if (isset($field['defaultJson'])) {
+						self::setDefaultIfUnset($id, $field['defaultJson'], Config::PART_POS_JSON);
 					}
 					break;
 			}

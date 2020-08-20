@@ -168,30 +168,15 @@ class AdminSettings extends BaseController
 					break;
 				case'pos_rot':
 					add_settings_field(
-						$id . Config::GLUE_PART . Config::PART_POS_X,
+						$id . Config::GLUE_PART . Config::PART_POS_JSON,
 						$field['label'],
 						$callback,
 						$page,
 						$field['section'],
 						$field
 					);
-					//$argX   = isset($field['defaultX']) ? ['default' => $field['defaultX']] : [];
-					//$argY   = isset($field['defaultY']) ? ['default' => $field['defaultY']] : [];
-					//$argRot = isset($field['defaultRot']) ? ['default' => $field['defaultRot']] : [];
-					$defaultX   = isset($field['defaultX']) ? ['default' => $field['defaultX']] : [];
-					$defaultY   = isset($field['defaultY']) ? ['default' => $field['defaultY']] : [];
-					$defaultRot = isset($field['defaultRot']) ? ['default' => $field['defaultRot']] : [];
-					$argX   = ['x' => isset($field['defaultX']) ? $field['defaultX'] : NULL ];
-					$argY   = ['y' => isset($field['defaultY']) ? $field['defaultY'] : NULL ];
-					$argRot = ['rot' => isset($field['defaultRot']) ? $field['defaultRot'] : NULL ];
-					$argPos = array_merge($argX, $argY, $argRot);
-					$argPosJson = [
-						'default' => implode(" ", array(json_encode($argPos)))
-					];
-					register_setting($page, $id . Config::GLUE_PART . Config::PART_POS_X, $defaultX);
-					register_setting($page, $id . Config::GLUE_PART . Config::PART_POS_Y, $defaultY);
-					register_setting($page, $id . Config::GLUE_PART . Config::PART_ROTATION, $defaultRot);
-					register_setting($page, $id . Config::GLUE_PART . Config::PART_POS_JSON, $argPosJson);
+					$defaultJson = isset($field['defaultJson']) ? ['default' => $field['defaultJson']] : [];
+					register_setting($page, $id . Config::GLUE_PART . Config::PART_POS_JSON, $defaultJson);
 					break;
 				case'wpPage':
 					add_settings_field($id, $field['label'], $callback, $page, $field['section'], $field);
@@ -261,26 +246,7 @@ class AdminSettings extends BaseController
 				);
 				break;
 			case 'pos_rot':
-				//$valuePosX = Config::getValue($uid, Config::PART_POS_X);
-				//$valuePosY = Config::getValue($uid, Config::PART_POS_Y);
-				//$valueRot = Config::getValue($uid, Config::PART_ROTATION);
-				$defaultPosX = Config::getValue($uid, Config::PART_POS_X);
-				$defaultPosY = Config::getValue($uid, Config::PART_POS_Y);
-				$defaultRot = Config::getValue($uid, Config::PART_ROTATION);
-				$defaultPosArr = [
-					'x' => $defaultPosX,
-					'y' => $defaultPosY,
-					'rot' => $defaultRot
-				];
-				$defaultPosJsonArr = [
-					json_encode($defaultPosArr)
-				];
-				$defaultPosHtmlEntity = implode(" ", $defaultPosJsonArr);
 				$valuePosHtmlEntity = Config::getValue($uid, Config::PART_POS_JSON);
-				//fallback if $valuePosHtmlEntity is empty:
-				if(!$valuePosHtmlEntity) {
-					$valuePosHtmlEntity = implode(" ", $defaultPosJsonArr);
-				}
 				$valuePosHtmlEntity = htmlspecialchars($valuePosHtmlEntity, ENT_COMPAT);
 				$options = [
 					0   => 'Normal orientation',
@@ -301,9 +267,9 @@ class AdminSettings extends BaseController
 
 				foreach($valuePosJsonArr as $valuePosJson) {
 					$valuePos = json_decode($valuePosJson, true);
-					$valuePosX = $valuePos['x'] ? $valuePos['x'] : $defaultPosArr['x'];
-					$valuePosY = $valuePos['y'] ? $valuePos['y']: $defaultPosArr['y'];
-					$valueRot = $valuePos['rot'] ? $valuePos['rot']: $defaultPosArr['rot'];
+					$valuePosX = $valuePos['x'];
+					$valuePosY = $valuePos['y'];
+					$valueRot = $valuePos['rot'];
 					printf(
 						'%6$s<input 
 							name="%1$s" 
@@ -348,12 +314,12 @@ class AdminSettings extends BaseController
 				//print + and - button
 				printf(
 					'<br/><button type="button" class="%1$s" onclick="removeSignatureFieldPositionsRow(&quot;%2$s&quot;)">-</button>',
-					$wpid . Config::GLUE_PART . Config::PART_MINUS,
+					$wpid . Config::GLUE_PART . 'minus',
 					$wpid . Config::GLUE_PART . Config::PART_POS_JSON
 				);
 				printf(
 					'<button type="button" class="%1$s" onclick="addSignatureFieldPositionsRow(&quot;%2$s&quot;)">+</button>',
-					$wpid . Config::GLUE_PART . Config::PART_PLUS,
+					$wpid . Config::GLUE_PART . 'plus',
 					$wpid . Config::GLUE_PART . Config::PART_POS_JSON
 				);
 				break;
