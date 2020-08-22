@@ -689,21 +689,21 @@ class ConfigVars
 				'section'      => 'signatureSheetFields_' . $langId,
 				'type'         => 'pos_rot',
 				'supplemental' => 'Position on the sign sheet "x-y" while y is measured from bottom to top',
-				'defaultJson' => '{"x":100,"y":655,"rot":null}'
+				'defaultJson' => '[{"x":100,"y":655,"rot":0}]'
 			];
 			$fields[] = [
 				'uid'      => 'field_zip' . $glueLangId,
 				'label'    => 'ZIP',
 				'section'  => 'signatureSheetFields_' . $langId,
 				'type'     => 'pos_rot',
-				'defaultJson' => '{"x":210,"y":655,"rot":null}'
+				'defaultJson' => '[{"x":210,"y":655,"rot":0}]'
 			];
 			$fields[] = [
 				'uid'      => 'field_commune' . $glueLangId,
 				'label'    => 'Commune',
 				'section'  => 'signatureSheetFields_' . $langId,
 				'type'     => 'pos_rot',
-				'defaultJson' => '{"x":260,"y":655,"rot":null}'
+				'defaultJson' => '[{"x":260,"y":655,"rot":0}]'
 			];
 			$fields[] = [
 				'uid'      => 'field_last_name' . $glueLangId,
@@ -711,7 +711,7 @@ class ConfigVars
 				'section'  => 'signatureSheetFields_' . $langId,
 				'type'     => 'pos_rot',
 				'class'    => 'showOnPrintNamesChecked',
-				'defaultJson' => '{"x":70,"y":617,"rot":null}'
+				'defaultJson' => '[{"x":70,"y":617,"rot":0}]'
 			];
 			$fields[] = [
 				'uid'      => 'field_first_name' . $glueLangId,
@@ -719,35 +719,35 @@ class ConfigVars
 				'section'  => 'signatureSheetFields_' . $langId,
 				'type'     => 'pos_rot',
 				'class'    => 'showOnPrintNamesChecked',
-				'defaultJson' => '{"x":130,"y":617,"rot":null}'
+				'defaultJson' => '[{"x":130,"y":617,"rot":0}]'
 			];
 			$fields[] = [
 				'uid'      => 'field_birthdate_day' . $glueLangId,
 				'label'    => 'Birth date day',
 				'section'  => 'signatureSheetFields_' . $langId,
 				'type'     => 'pos_rot',
-				'defaultJson' => '{"x":200,"y":617,"rot":null}'
+				'defaultJson' => '[{"x":200,"y":617,"rot":0}]'
 			];
 			$fields[] = [
 				'uid'      => 'field_birthdate_month' . $glueLangId,
 				'label'    => 'Birth date month',
 				'section'  => 'signatureSheetFields_' . $langId,
 				'type'     => 'pos_rot',
-				'defaultJson' => '{"x":218,"y":617,"rot":null}'
+				'defaultJson' => '[{"x":218,"y":617,"rot":0}]'
 			];
 			$fields[] = [
 				'uid'      => 'field_birthdate_year' . $glueLangId,
 				'label'    => 'Birth date year',
 				'section'  => 'signatureSheetFields_' . $langId,
 				'type'     => 'pos_rot',
-				'defaultJson' => '{"x":236,"y":617,"rot":null}'
+				'defaultJson' => '[{"x":236,"y":617,"rot":0}]'
 			];
 			$fields[] = [
 				'uid'      => 'field_street' . $glueLangId,
 				'label'    => 'Street',
 				'section'  => 'signatureSheetFields_' . $langId,
 				'type'     => 'pos_rot',
-				'defaultJson' => '{"x":260,"y":617,"rot":null}'
+				'defaultJson' => '[{"x":260,"y":617,"rot":0}]'
 			];
 			$fields[] = [
 				'uid'        => 'field_qr_img' . $glueLangId,
@@ -755,7 +755,7 @@ class ConfigVars
 				'section'    => 'signatureSheetFields_' . $langId,
 				'type'       => 'pos_rot',
 				'class'      => 'showOnQr',
-				'defaultJson' => '{"x":579,"y":370,"rot":180}'
+				'defaultJson' => '[{"x":579,"y":370,"rot":180}]'
 			];
 			$fields[] = [
 				'uid'          => 'field_qr_img_size' . $glueLangId,
@@ -772,7 +772,7 @@ class ConfigVars
 				'section'    => 'signatureSheetFields_' . $langId,
 				'type'       => 'pos_rot',
 				'class'      => 'showOnQr',
-				'defaultJson' => '{"x":558,"y":373,"rot":180}'
+				'defaultJson' => '[{"x":558,"y":373,"rot":180}]'
 			];
 
 			// Mail sender

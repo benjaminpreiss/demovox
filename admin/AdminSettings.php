@@ -254,73 +254,40 @@ class AdminSettings extends BaseController
 					180 => 'Rotate 180°',
 					270 => 'Rotate 90° counter-clockwise',
 				];
-				$fieldCounter = 0;
+				//decode $valuePosHtmlEntity:
+				$valuePosArr = json_decode(html_entity_decode($valuePosHtmlEntity, ENT_COMPAT), true);
+				$valuePos = $valuePosArr[0];
+				$valueRot = $valuePos['rot'];
+				printf('<div class="demovox_field_group">');
+				printf(
+					'<input class="demovox_field_%1$s" type="number" placeholder="%1$s" size="5" />',
+					Config::PART_POS_X,
+				);
+				printf(
+					'<input class="demovox_field_%1$s" type="number" placeholder="%1$s" size="5" />',
+					Config::PART_POS_Y,
+				);
+				$selectClass = [
+					"class" => "demovox_field_" . Config::PART_ROTATION
+				];
+				Strings::createSelect($options, $valueRot, null, null, $selectClass);
+				printf('</div>');
 				// Print hidden field
 				printf(
-					'<input name="%1$s" id="%1$s" type="hidden" value="%3$s" />',
+					'<input name="%1$s" id="%1$s" type="hidden" value="%3$s" class="demovox_field_%4$s" />',
 					$wpid . Config::GLUE_PART . Config::PART_POS_JSON,
 					'json',
-					$valuePosHtmlEntity
+					$valuePosHtmlEntity,
+					Config::PART_POS_JSON
 				);
-				//decode $valuePosHtmlEntity:
-				$valuePosJsonArr = explode(" ", html_entity_decode($valuePosHtmlEntity, ENT_COMPAT));
-
-				foreach($valuePosJsonArr as $valuePosJson) {
-					$valuePos = json_decode($valuePosJson, true);
-					$valuePosX = $valuePos['x'];
-					$valuePosY = $valuePos['y'];
-					$valueRot = $valuePos['rot'];
-					printf(
-						'%6$s<input 
-							name="%1$s" 
-							id="%1$s" 
-							type="number" 
-							placeholder="%2$s" 
-							value="%3$s" 
-							size="5" 
-							onchange="updateHiddenSignatureFieldPositionsInput(&quot;%1$s&quot;, %4$s, &quot;%2$s&quot;, &quot;%5$s&quot;)" 
-						/>',
-						$wpid . Config::GLUE_PART . Config::PART_POS_X . ($fieldCounter === 0 ? '' : Config::GLUE_PART . $fieldCounter ),
-						Config::PART_POS_X,
-						$valuePosX,
-						$fieldCounter,
-						$wpid . Config::GLUE_PART . Config::PART_POS_JSON,
-						$fieldCounter === 0 ? '' : '<br/>'
-					);
-					printf(
-						'<input
-							name="%1$s" 
-							id="%1$s" 
-							type="number" 
-							placeholder="%2$s" 
-							value="%3$s" 
-							size="5"
-							onchange="updateHiddenSignatureFieldPositionsInput(&quot;%1$s&quot;, %4$s, &quot;%2$s&quot;, &quot;%5$s&quot;)" 
-						/>',
-						$wpid . Config::GLUE_PART . Config::PART_POS_Y . ($fieldCounter === 0 ? '' : Config::GLUE_PART . $fieldCounter ),
-						Config::PART_POS_Y,
-						$valuePosY,
-						$fieldCounter,
-						$wpid . Config::GLUE_PART . Config::PART_POS_JSON
-					);
-					$selectName = $wpid . Config::GLUE_PART . Config::PART_ROTATION . ($fieldCounter === 0 ? '' : Config::GLUE_PART . $fieldCounter );
-					$selectOnChangeAttribute = "updateHiddenSignatureFieldPositionsInput(&quot;" . $selectName . "&quot;, " . $fieldCounter . ", &quot;" . Config::PART_ROTATION . "&quot;, &quot;" . $wpid . Config::GLUE_PART . Config::PART_POS_JSON . "&quot;)";
-					$selectAttributes = [
-						"onchange" => $selectOnChangeAttribute
-					];
-					Strings::createSelect($options, $valueRot, $selectName, $selectName, $selectAttributes);
-					$fieldCounter++;
-				}
 				//print + and - button
 				printf(
-					'<br/><button type="button" class="%1$s" onclick="removeSignatureFieldPositionsRow(&quot;%2$s&quot;)">-</button>',
-					$wpid . Config::GLUE_PART . 'minus',
-					$wpid . Config::GLUE_PART . Config::PART_POS_JSON
+					'<br/><button type="button" class="%1$s">-</button>',
+					'demovox_field_group_remove'
 				);
 				printf(
-					'<button type="button" class="%1$s" onclick="addSignatureFieldPositionsRow(&quot;%2$s&quot;)">+</button>',
-					$wpid . Config::GLUE_PART . 'plus',
-					$wpid . Config::GLUE_PART . Config::PART_POS_JSON
+					'<button type="button" class="%1$s">+</button>',
+					'demovox_field_group_add'
 				);
 				break;
 			case 'textarea': // If it is a textarea

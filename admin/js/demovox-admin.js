@@ -66,6 +66,35 @@ var fontSize, textColor = [0, 0, 0], fontFamily = 'Helvetica';
 			createPdf('preview', pdfUrl, fields, qrData, $container);
 		});
 		initDemovoxAjaxButton($('.demovox'));
+
+		$("input.demovox_field_json").each(function(index) {
+			var $row = $(this).parent(),
+				$field = $(this),
+				jsonString = $field.val(),
+				$group = $row.find('.demovox_field_group');
+		
+			if (jsonString) {
+				var jsonArray = JSON.parse(jsonString);
+				jsonArray.forEach((value) => {
+					createGroup($row, $group, value.x, value.y, value.rot);
+				})
+				if(jsonArray.length) {
+					$group.hide();
+				}
+			}
+		
+			$row.find('.demovox_field_group_add').on('click', function() {
+				createGroup($row, $group);
+				genJson($row, $field);
+			});
+			$row.find('.demovox_field_group_remove').on('click', function() {
+				$row.find('.demovox_field_group:last').remove();
+				genJson($row, $field);
+			});
+			$row.on('change', '.demovox_field_group input, .demovox_field_group select', function() {
+				genJson($row, $field);
+			});
+		});
 	});
 
 	function initDemovoxAjaxButton($container) {
@@ -100,6 +129,40 @@ var fontSize, textColor = [0, 0, 0], fontFamily = 'Helvetica';
 					$ajaxContainer.css('cursor', 'auto');
 				});
 		});
+	}
+		
+	function createGroup($row, $group, x, y, rot) {
+		var $lastGroup = $row.find('.demovox_field_group:last'),
+			$created = $group.clone().insertAfter($lastGroup);
+		if (typeof x === 'undefined') {
+			$created.find('.demovox_field_x').val($lastGroup.find('.demovox_field_x').val());
+			$created.find('.demovox_field_y').val($lastGroup.find('.demovox_field_y').val());
+			$created.find('.demovox_field_rot').val($lastGroup.find('.demovox_field_rot').val());
+		} else {
+			$created.find('.demovox_field_x').val(x);
+			$created.find('.demovox_field_y').val(y);
+			$created.find('.demovox_field_rot').val(rot);
+		}
+		$created.show();
+	}
+	
+	function genJson($row, $field) {
+		var values = [];
+		$row.find('.demovox_field_group').each(function(index) {
+			var $group = $(this),
+				x = $group.find('.demovox_field_x').val(),
+				y = $group.find('.demovox_field_y').val(),
+				rot = $group.find('.demovox_field_rot').val();
+			if (x == '' || y == '' || rot == '') {
+				return;
+			}
+			values.push({
+				x: Number(x),
+				y: Number(y),
+				rot: Number(rot)
+			});
+		});
+		$field.val(JSON.stringify(values));
 	}
 
 	var demovoxAdminClass = {
@@ -191,51 +254,6 @@ var fontSize, textColor = [0, 0, 0], fontFamily = 'Helvetica';
 		}
 	};
 	global.demovoxAdminClass = demovoxAdminClass;
-	window.updateHiddenSignatureFieldPositionsInput = function(changedFieldId, changedFieldCounter, changedFieldKey, hiddenFieldId) {
-		var changedFieldValue = $("#" + changedFieldId)[0].value;
-		var hiddenFieldElement = $("#" + hiddenFieldId)[0];
-		var hiddenFieldValue = hiddenFieldElement.value;
-		//make indexable hidden field value array
-		var hiddenFieldValueArr = hiddenFieldValue.split(" ");
-		//change correct key at the right index
-		var regex = new RegExp("\"" + changedFieldKey + "\":([0-9]*|(null))+");
-		hiddenFieldValueArr[changedFieldCounter] = hiddenFieldValueArr[changedFieldCounter].replace(regex, "\"" + changedFieldKey + "\":" + changedFieldValue);
-		//join array to string again
-		hiddenFieldValue = hiddenFieldValueArr.join(" ");
-		//change hidden field value correspondingly
-		hiddenFieldElement.value = hiddenFieldValue;
-	};
-	window.addSignatureFieldPositionsRow = function (hiddenFieldId) {
-		//update hidden field to accommodate new empty array entry.
-		//trigger save by .click()
-		var hiddenFieldElement = $("#" + hiddenFieldId)[0];
-		var hiddenFieldValue = hiddenFieldElement.value;
-		//make indexable hidden field value array
-		var hiddenFieldValueArr = hiddenFieldValue.split(" ");
-		var emptyPosEntry = hiddenFieldValueArr.slice(-1);
-		console.log(hiddenFieldValueArr);
-		//add new array entry
-		hiddenFieldValueArr.push(emptyPosEntry);
-		hiddenFieldValue = hiddenFieldValueArr.join(" ");
-		hiddenFieldElement.value = hiddenFieldValue;
-		console.log(hiddenFieldValue);
-		$("#submit")[0].click();
-	};
-	window.removeSignatureFieldPositionsRow = function (hiddenFieldId) {
-		//update hidden field to accommodate new empty array entry.
-		//trigger save by .click()
-		var hiddenFieldElement = $("#" + hiddenFieldId)[0];
-		var hiddenFieldValue = hiddenFieldElement.value;
-		//make indexable hidden field value array
-		var hiddenFieldValueArr = hiddenFieldValue.split(" ");
-		if (hiddenFieldValueArr.length > 1) {
-			hiddenFieldValueArr.pop();
-			hiddenFieldValue = hiddenFieldValueArr.join(" ");
-			hiddenFieldElement.value = hiddenFieldValue;
-			console.log(hiddenFieldValue);
-			$("#submit")[0].click();
-		}
-	};
 })(jQuery);
 
 global.demovoxChart = demovoxChart;

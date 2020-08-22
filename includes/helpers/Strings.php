@@ -184,7 +184,7 @@ class Strings
 		foreach ($attributes as $key => $value) {
 			$addAttribs .= ' ' . $key . '="' . $value . '"';
 		}
-		printf('<select name="%1$s" id="%2$s"%4$s>%3$s</select>', $name, $id, $optionsMarkup, $addAttribs);
+		printf('<select %1$s %2$s %4$s>%3$s</select>', ($name ? 'name="' . $name . '"' : ''), ($id ? 'id="' . $id . '"' : ''), $optionsMarkup, $addAttribs);
 
 		return $id;
 	}
