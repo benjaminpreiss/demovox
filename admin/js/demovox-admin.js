@@ -35,35 +35,25 @@ var fontSize, textColor = [0, 0, 0], fontFamily = 'Helvetica';
 
 		fontSize = parseInt($('#demovox_fontsize').val());
 		$('.demovox .showPdf').click(function () {
+			fields = [];
 			var $container = $(this).closest('div'),
 				lang = $(this).data('lang'),
 				qrMode = $('#demovox_field_qr_mode').val(),
 				pdfUrl = $('#demovox_signature_sheet_' + lang).val(),
 				admin = demovoxAdminClass,
-				fields = [
-					admin.createField('BE', 'canton', lang),
-					admin.createField('Bern', 'commune', lang),
-					admin.createField('3001', 'zip', lang),
-					admin.createField('21', 'birthdate_day', lang),
-					admin.createField('10', 'birthdate_month', lang),
-					admin.createField('88', 'birthdate_year', lang),
-					admin.createField('Theaterplatz 4', 'street', lang),
-				],
-				qrData = qrMode === 'disabled'
+				fields = fields.concat(
+					admin.createJsonFields('BE', 'canton', lang),
+					admin.createJsonFields('Bern', 'commune', lang),
+					admin.createJsonFields('3001', 'zip', lang),
+					admin.createJsonFields('21', 'birthdate_day', lang),
+					admin.createJsonFields('10', 'birthdate_month', lang),
+					admin.createJsonFields('88', 'birthdate_year', lang),
+					admin.createJsonFields('Theaterplatz 4', 'street', lang),
+				),
+				qrDataArr = qrMode === 'disabled'
 					? null
-					: {
-						"text": "JNXWE",
-						"x": admin.getField('qr_img_' + lang + '_x'),
-						"y": admin.getField('qr_img_' + lang + '_y'),
-						"rotate": admin.getField('qr_img_' + lang + '_rot'),
-						"size": admin.getField('qr_img_size_' + lang),
-						"textX": admin.getField('qr_text_' + lang + '_x'),
-						"textY": admin.getField('qr_text_' + lang + '_y'),
-						"textRotate": admin.getField('qr_text_' + lang + '_rot'),
-						"textSize": fontSize,
-						"textColor": textColor
-					};
-			createPdf('preview', pdfUrl, fields, qrData, $container);
+					: admin.createJsonQrData(lang, "JNXWE", fontSize, textColor);
+			createPdf('preview', pdfUrl, fields, qrDataArr, $container);
 		});
 		initDemovoxAjaxButton($('.demovox'));
 
@@ -71,12 +61,16 @@ var fontSize, textColor = [0, 0, 0], fontFamily = 'Helvetica';
 			var $row = $(this).parent(),
 				$field = $(this),
 				jsonString = $field.val(),
-				$group = $row.find('.demovox_field_group');
+				$group = $row.find('.demovox_field_group'),
+				$linkedFields = $("input.linked_fields"),
+				$fieldLang = $field.data("lang"),
+				$remainingFields = $linkedFields.not($field).filter("[data-lang='" + $fieldLang + "']");
 		
 			if (jsonString) {
 				var jsonArray = JSON.parse(jsonString);
 				jsonArray.forEach((value) => {
 					createGroup($row, $group, value.x, value.y, value.rot);
+					$row.find('.demovox_field_group:first').remove();
 				})
 				if(jsonArray.length) {
 					$group.hide();
@@ -86,10 +80,24 @@ var fontSize, textColor = [0, 0, 0], fontFamily = 'Helvetica';
 			$row.find('.demovox_field_group_add').on('click', function() {
 				createGroup($row, $group);
 				genJson($row, $field);
+				if ($remainingFields.size() === 1) {
+					var $remainingRow = $remainingFields.parent(),
+						$remainingGroup = $remainingRow.find('.demovox_field_group:last');
+					createGroup($remainingRow, $remainingGroup);
+					genJson($remainingRow, $remainingFields);
+				}
 			});
 			$row.find('.demovox_field_group_remove').on('click', function() {
-				$row.find('.demovox_field_group:last').remove();
-				genJson($row, $field);
+				var $groups = $row.find('.demovox_field_group');
+				if ($groups.size() > 1) {
+					$groups.last().remove();
+					genJson($row, $field);
+					if ($remainingFields.size() === 1) {
+						var $remainingRow = $remainingFields.parent();
+						$remainingRow.find('.demovox_field_group:last').remove();
+						genJson($remainingRow, $remainingFields);
+					}
+				}
 			});
 			$row.on('change', '.demovox_field_group input, .demovox_field_group select', function() {
 				genJson($row, $field);
@@ -166,22 +174,62 @@ var fontSize, textColor = [0, 0, 0], fontFamily = 'Helvetica';
 	}
 
 	var demovoxAdminClass = {
-		getField: function (name) {
+		createJsonQrData: function (lang, text, fontSize, textColor) {
+			var fields = [];
+			var jsonQrImg = this.getJsonField('qr_img_' + lang + '_json'),
+				jsonQrText = this.getJsonField('qr_text_' + lang + '_json'),
+				posArrQrImg = JSON.parse(jsonQrImg),
+				posArrQrText = JSON.parse(jsonQrText);
+
+			posArrQrImg.forEach((pos, index) => {
+				var x = pos.x,
+					y = pos.y,
+					rotate = pos.rot,
+					textX = posArrQrText[index].x,
+					textY = posArrQrText[index].y,
+					textRotate = posArrQrText[index].rot;
+				fields = fields.concat([{
+					"text": text,
+					"x": x,
+					"y": y,
+					"rotate": rotate,
+					"size": this.getField('qr_img_size_' + lang),
+					"textX": textX,
+					"textY": textY,
+					"textRotate": textRotate,
+					"textSize": fontSize,
+					"textColor": textColor
+				}])
+			})
+			return fields;
+		},
+		getField: function(name) {
 			return parseInt($('#demovox_field_' + name).val())
 		},
-		createField: function (value, name, lang) {
-			var x = this.getField(name + '_' + lang + '_x'),
-				y = this.getField(name + '_' + lang + '_y'),
-				rotate = this.getField(name + '_' + lang + '_rot');
-			return {
-				"drawText": value,
-				"x": x,
-				"y": y,
-				"rotate": rotate,
-				"size": fontSize,
-				"font": fontFamily,
-				"color": textColor
-			};
+		getJsonField: function (name) {
+			return $('#demovox_field_' + name).val()
+		},
+		createJsonFields: function (value, name, lang) {
+			var fields = [];
+			var json = this.getJsonField(name + '_' + lang + '_json'),
+				posArr = JSON.parse(json);
+			posArr.forEach((pos) => {
+				var x = pos.x,
+					y = pos.y,
+					rotate = pos.rot;
+				fields = fields.concat([
+					{
+						"drawText": value,
+						"x": x,
+						"y": y,
+						"rotate": rotate,
+						"size": fontSize,
+						"font": fontFamily,
+						"color": textColor
+					}
+				])
+			})
+			return fields;
 		},
 		setOnVal: function ($check, $set, checkValue, setValue) {
 			if ($check.is("input")) {

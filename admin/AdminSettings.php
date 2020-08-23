@@ -258,14 +258,23 @@ class AdminSettings extends BaseController
 				$valuePosArr = json_decode(html_entity_decode($valuePosHtmlEntity, ENT_COMPAT), true);
 				$valuePos = $valuePosArr[0];
 				$valueRot = $valuePos['rot'];
-				printf('<div class="demovox_field_group">');
+				$linked = strpos($wpid, 'demovox_field_qr_img') !== false || strpos($wpid, 'demovox_field_qr_text') !== false ? ' linked_fields' : '';
+				$lang = '';
+				if (strpos($wpid, 'demovox_field_qr_img') !== false) {
+					$lang = str_replace('demovox_field_qr_img', '', $wpid);
+				} elseif (strpos($wpid, 'demovox_field_qr_text') !== false) {
+					$lang = str_replace('demovox_field_qr_text', '', $wpid);
+				}
 				printf(
-					'<input class="demovox_field_%1$s" type="number" placeholder="%1$s" size="5" />',
-					Config::PART_POS_X,
+					'<div class="demovox_field_group">'
 				);
 				printf(
 					'<input class="demovox_field_%1$s" type="number" placeholder="%1$s" size="5" />',
-					Config::PART_POS_Y,
+					Config::PART_POS_X
+				);
+				printf(
+					'<input class="demovox_field_%1$s" type="number" placeholder="%1$s" size="5" />',
+					Config::PART_POS_Y
 				);
 				$selectClass = [
 					"class" => "demovox_field_" . Config::PART_ROTATION
@@ -274,11 +283,13 @@ class AdminSettings extends BaseController
 				printf('</div>');
 				// Print hidden field
 				printf(
-					'<input name="%1$s" id="%1$s" type="hidden" value="%3$s" class="demovox_field_%4$s" />',
+					'<input name="%1$s" id="%1$s" type="hidden" value="%3$s" class="demovox_field_%4$s%5$s" data-lang="%6$s" />',
 					$wpid . Config::GLUE_PART . Config::PART_POS_JSON,
 					'json',
 					$valuePosHtmlEntity,
-					Config::PART_POS_JSON
+					Config::PART_POS_JSON,
+					$linked,
+					$lang
 				);
 				//print + and - button
 				printf(

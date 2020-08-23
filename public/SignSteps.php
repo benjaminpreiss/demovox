@@ -363,23 +363,33 @@ class SignSteps
 			$qrData = null;
 		} else {
 			$shortcode  = Strings::getSerial($signId, $qrMode);
-			$qrPosX     = Config::getValueByUserlang('field_qr_img', Config::PART_POS_X);
-			$qrPosY     = Config::getValueByUserlang('field_qr_img', Config::PART_POS_Y);
-			$qrTextPosX = Config::getValueByUserlang('field_qr_text', Config::PART_POS_X);
-			$qrTextPosY = Config::getValueByUserlang('field_qr_text', Config::PART_POS_Y);
+			$qrPosJson = Config::getValueByUserlang('field_qr_img', Config::PART_POS_JSON);
+			$qrPosArr = json_decode(html_entity_decode($qrPosJson, ENT_COMPAT), true);
+			$qrTextPosJson = Config::getValueByUserlang('field_qr_text', Config::PART_POS_JSON);
+			$qrTextPosArr = json_decode(html_entity_decode($qrTextPosJson, ENT_COMPAT), true);
+			$qrDataArr = [];
+			foreach ($qrPosArr as $key => $qrPos) {
+				$qrPosX     = $qrPos['x'];
+				$qrPosY     = $qrPos['y'];
+				$qrPosRot = $qrPos['rot'];
+				$qrTextPosX = $qrTextPosArr[$key]['x'];
+				$qrTextPosY = $qrTextPosArr[$key]['y'];
+				$qrTextPosRot = $qrTextPosArr[$key]['rot'];
+				$qrDataArr[] = [
+					'text'       => (string)$shortcode,
+					'x'          => intval($qrPosX),
+					'y'          => intval($qrPosY),
+					'size'       => intval(Config::getValueByUserlang('field_qr_img_size')),
+					'rotate'     => intval($qrPosRot),
+					'textX'      => intval($qrTextPosX),
+					'textY'      => intval($qrTextPosY),
+					'textRotate' => intval($qrTextPosRot),
+					'textSize'   => intval($fontSize),
+					'textColor'  => $this->textColor,
+				];
+			}
+			
 			$fontSize   = Config::getValue('fontsize');
-			$qrData     = [
-				'text'       => (string)$shortcode,
-				'x'          => intval($qrPosX),
-				'y'          => intval($qrPosY),
-				'size'       => intval(Config::getValueByUserlang('field_qr_img_size')),
-				'rotate'     => intval(Config::getValueByUserlang('field_qr_img', Config::PART_ROTATION)),
-				'textX'      => intval($qrTextPosX),
-				'textY'      => intval($qrTextPosY),
-				'textRotate' => intval(Config::getValueByUserlang('field_qr_text', Config::PART_ROTATION)),
-				'textSize'   => intval($fontSize),
-				'textColor'  => $this->textColor,
-			];
 		}
 
 		// Prepare view variables
@@ -387,7 +397,7 @@ class SignSteps
 		$permalink = Strings::getPageUrl($guid);
 		$pdfUrl    = Config::getValueByUserlang('signature_sheet');
 		$fields    = json_encode($fields);
-		$qrData    = $qrData ? json_encode($qrData) : null;
+		$qrDataArr    = $qrDataArr ? json_encode($qrDataArr) : null;
 
 		// Render view
 		include Infos::getPluginDir() . 'public/partials/sign-3.php';
@@ -407,10 +417,8 @@ class SignSteps
 
 		$return = [];
 		foreach ($fields as $name => $value) {
-			$posX   = Config::getValueByUserlang($name, Config::PART_POS_X);
-			$posY   = Config::getValueByUserlang($name, Config::PART_POS_Y);
-			$rotate = Config::getValueByUserlang($name, Config::PART_ROTATION);
-			if ($posX === false || $posY === false || $rotate === false) {
+			$posJson = Config::getValueByUserlang($name, Config::PART_POS_JSON);
+			if ($posJson === false) {
 				Core::logMessage('Coordinates for field "' . $name . '" are not defined, please save your Signature sheet settings.', 'warning');
 				continue;
 			}
@@ -422,14 +430,17 @@ class SignSteps
 			} else {
 				$text = $value;
 			}
-			$return[] = [
-				'drawText' => (string)$text,
-				'x'        => (int)$posX,
-				'y'        => (int)$posY,
-				'rotate'   => (int)$rotate,
-				'size'     => (int)$fontSize,
-				'color'    => (array)$textColor,
-			];
+			$posArr = json_decode(html_entity_decode($posJson, ENT_COMPAT), true);
+			foreach ($pos as $key => $pos) {
+				$return[] = [
+					'drawText' => (string)$text,
+					'x'        => (int)$pos['x'],
+					'y'        => (int)$pos['y'],
+					'rotate'   => (int)$pos['rot'],
+					'size'     => (int)$fontSize,
+					'color'    => (array)$textColor,
+				];
+			}
 		}
 		return $return;
 	}

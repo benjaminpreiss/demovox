@@ -14,7 +14,7 @@ $(() => {
 	 * @param qrData array
 	 * @returns {Promise<void>}
 	 */
-	window.createPdf = async function (title, pdfUrl, fields, qrData, $cont) {
+	window.createPdf = async function (title, pdfUrl, fields, qrDataArr, $cont) {
 		if ($cont === undefined) {
 			$container = $('#demovox-pdf');
 		} else {
@@ -36,7 +36,7 @@ $(() => {
 				}
 				try {
 					let pdfData = new Uint8Array(this.response),
-						pdfDoc = await editPdf(pdfData, fields, qrData);
+						pdfDoc = await editPdf(pdfData, fields, qrDataArr);
 					await embedPdf(title, pdfDoc);
 					showContainer('ok');
 				} catch (e) {
@@ -78,7 +78,7 @@ $(() => {
 	 * @param qrData array
 	 * @returns {Promise<PDFDocument>}
 	 */
-	async function editPdf(pdfData, fields, qrData) {
+	async function editPdf(pdfData, fields, qrDataArr) {
 		const pdfDoc = await PDFDocument.load(pdfData),
 			helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
 
@@ -97,26 +97,29 @@ $(() => {
 				});
 			}
 		);
-		if (qrData) {
-			let pngBytes = createQrPng(qrData.text, qrData.size),
-				pngImage = await pdfDoc.embedPng(pngBytes);
-
-			page.drawImage(pngImage, {
-				x: qrData.x,
-				y: qrData.y,
-				width: pngImage.width,
-				height: pngImage.height,
-				rotate: degrees(qrData.rotate),
-			});
-
-			page.drawText(qrData.text, {
-				x: qrData.textX,
-				y: qrData.textY,
-				size: qrData.textSize,
-				font: helveticaFont,
-				color: rgb(qrData.textColor[0], qrData.textColor[1], qrData.textColor[2]),
-				rotate: degrees(qrData.textRotate),
-			});
+		if (qrDataArr) {
+			for(var index = 0; index < qrDataArr.length; index++) {
+				var qrData = qrDataArr[index];
+				let pngBytes = createQrPng(qrData.text, qrData.size),
+					pngImage = await pdfDoc.embedPng(pngBytes);
+	
+				page.drawImage(pngImage, {
+					x: qrData.x,
+					y: qrData.y,
+					width: pngImage.width,
+					height: pngImage.height,
+					rotate: degrees(qrData.rotate),
+				});
+	
+				page.drawText(qrData.text, {
+					x: qrData.textX,
+					y: qrData.textY,
+					size: qrData.textSize,
+					font: helveticaFont,
+					color: rgb(qrData.textColor[0], qrData.textColor[1], qrData.textColor[2]),
+					rotate: degrees(qrData.textRotate),
+				});
+			}
 		}
 		return pdfDoc;
 	}

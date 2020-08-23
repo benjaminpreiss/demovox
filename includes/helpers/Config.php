@@ -79,9 +79,7 @@ class Config
 					Core::delOption($field, Config::PART_POS_Y);
 					break;
 				case 'pos_rot':
-					Core::delOption($field, Config::PART_POS_X);
-					Core::delOption($field, Config::PART_POS_Y);
-					Core::delOption($field, Config::PART_ROTATION);
+					Core::delOption($field, Config::PART_POS_JSON);
 					break;
 			}
 		}
@@ -111,15 +109,6 @@ class Config
 					}
 					break;
 				case 'pos_rot':
-					if (isset($field['defaultX'])) {
-						self::setDefaultIfUnset($id, $field['defaultX'], Config::PART_POS_X);
-					}
-					if (isset($field['defaultY'])) {
-						self::setDefaultIfUnset($id, $field['defaultY'], Config::PART_POS_Y);
-					}
-					if (isset($field['defaultRot'])) {
-						self::setDefaultIfUnset($id, $field['defaultRot'], Config::PART_ROTATION);
-					}
 					if (isset($field['defaultJson'])) {
 						self::setDefaultIfUnset($id, $field['defaultJson'], Config::PART_POS_JSON);
 					}

@@ -44,7 +44,7 @@ namespace Demovox;
 	</div>
 	<script>
 		jQuery(function () {
-			window.createPdf('<?= $title ?>', '<?= $pdfUrl ?>', <?= $fields ?>, <?= $qrData ?>);
+			window.createPdf('<?= $title ?>', '<?= $pdfUrl ?>', <?= $fields ?>, <?= $qrDataArr ?>);
 		});
 	</script>
 	<noscript>
