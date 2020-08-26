@@ -431,7 +431,7 @@ class SignSteps
 				$text = $value;
 			}
 			$posArr = json_decode(html_entity_decode($posJson, ENT_COMPAT), true);
-			foreach ($pos as $key => $pos) {
+			foreach ($posArr as $key => $pos) {
 				$return[] = [
 					'drawText' => (string)$text,
 					'x'        => (int)$pos['x'],
