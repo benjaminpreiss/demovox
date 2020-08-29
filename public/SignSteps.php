@@ -363,9 +363,9 @@ class SignSteps
 			$qrData = null;
 		} else {
 			$shortcode  = Strings::getSerial($signId, $qrMode);
-			$qrPosJson = Config::getValueByUserlang('field_qr_img', Config::PART_POS_JSON);
+			$qrPosJson = Config::getValueByUserlang('field_qr_img', 'json');
 			$qrPosArr = json_decode(html_entity_decode($qrPosJson, ENT_COMPAT), true);
-			$qrTextPosJson = Config::getValueByUserlang('field_qr_text', Config::PART_POS_JSON);
+			$qrTextPosJson = Config::getValueByUserlang('field_qr_text', 'json');
 			$qrTextPosArr = json_decode(html_entity_decode($qrTextPosJson, ENT_COMPAT), true);
 			$qrDataArr = [];
 			foreach ($qrPosArr as $key => $qrPos) {
@@ -397,7 +397,7 @@ class SignSteps
 		$permalink = Strings::getPageUrl($guid);
 		$pdfUrl    = Config::getValueByUserlang('signature_sheet');
 		$fields    = json_encode($fields);
-		$qrDataArr    = $qrDataArr ? json_encode($qrDataArr) : null;
+		$qrData    = $qrDataArr ? json_encode($qrDataArr) : null;
 
 		// Render view
 		include Infos::getPluginDir() . 'public/partials/sign-3.php';
@@ -417,7 +417,7 @@ class SignSteps
 
 		$return = [];
 		foreach ($fields as $name => $value) {
-			$posJson = Config::getValueByUserlang($name, Config::PART_POS_JSON);
+			$posJson = Config::getValueByUserlang($name, 'json');
 			if ($posJson === false) {
 				Core::logMessage('Coordinates for field "' . $name . '" are not defined, please save your Signature sheet settings.', 'warning');
 				continue;

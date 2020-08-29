@@ -6,10 +6,6 @@ class Config
 {
 	const GLUE_LANG = '_';
 	const GLUE_PART = '_';
-	const PART_ROTATION = 'rot';
-	const PART_POS_X = 'x';
-	const PART_POS_Y = 'y';
-	const PART_POS_JSON = 'json';
 	const PART_PREVIOUS_LANG = 'prevLang';
 
 	/**
@@ -75,11 +71,11 @@ class Config
 					Core::delOption($field);
 					break;
 				case 'pos':
-					Core::delOption($field, Config::PART_POS_X);
-					Core::delOption($field, Config::PART_POS_Y);
+					Core::delOption($field, 'x');
+					Core::delOption($field, 'y');
 					break;
 				case 'pos_rot':
-					Core::delOption($field, Config::PART_POS_JSON);
+					Core::delOption($field, 'json');
 					break;
 			}
 		}
@@ -102,15 +98,15 @@ class Config
 					break;
 				case 'pos':
 					if (isset($field['defaultX'])) {
-						self::setDefaultIfUnset($id, $field['defaultX'], Config::PART_POS_X);
+						self::setDefaultIfUnset($id, $field['defaultX'], 'x');
 					}
 					if (isset($field['defaultY'])) {
-						self::setDefaultIfUnset($id, $field['defaultY'], Config::PART_POS_Y);
+						self::setDefaultIfUnset($id, $field['defaultY'], 'y');
 					}
 					break;
 				case 'pos_rot':
 					if (isset($field['defaultJson'])) {
-						self::setDefaultIfUnset($id, $field['defaultJson'], Config::PART_POS_JSON);
+						self::setDefaultIfUnset($id, $field['defaultJson'], 'json');
 					}
 					break;
 			}

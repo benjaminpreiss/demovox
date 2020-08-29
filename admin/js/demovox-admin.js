@@ -35,20 +35,18 @@ var fontSize, textColor = [0, 0, 0], fontFamily = 'Helvetica';
 
 		fontSize = parseInt($('#demovox_fontsize').val());
 		$('.demovox .showPdf').click(function () {
-			fields = [];
 			var $container = $(this).closest('div'),
 				lang = $(this).data('lang'),
 				qrMode = $('#demovox_field_qr_mode').val(),
 				pdfUrl = $('#demovox_signature_sheet_' + lang).val(),
 				admin = demovoxAdminClass,
-				fields = fields.concat(
-					admin.createJsonFields('BE', 'canton', lang),
-					admin.createJsonFields('Bern', 'commune', lang),
-					admin.createJsonFields('3001', 'zip', lang),
-					admin.createJsonFields('21', 'birthdate_day', lang),
-					admin.createJsonFields('10', 'birthdate_month', lang),
-					admin.createJsonFields('88', 'birthdate_year', lang),
-					admin.createJsonFields('Theaterplatz 4', 'street', lang),
+				fields = admin.createFields('BE', 'canton', lang).concat(
+					admin.createFields('Bern', 'commune', lang),
+					admin.createFields('3001', 'zip', lang),
+					admin.createFields('21', 'birthdate_day', lang),
+					admin.createFields('10', 'birthdate_month', lang),
+					admin.createFields('88', 'birthdate_year', lang),
+					admin.createFields('Theaterplatz 4', 'street', lang),
 				),
 				qrDataArr = qrMode === 'disabled'
 					? null
@@ -70,8 +68,8 @@ var fontSize, textColor = [0, 0, 0], fontFamily = 'Helvetica';
 				var jsonArray = JSON.parse(jsonString);
 				jsonArray.forEach((value) => {
 					createGroup($row, $group, value.x, value.y, value.rot);
-					$row.find('.demovox_field_group:first').remove();
 				})
+				$row.find('.demovox_field_group:first').remove();
 				if(jsonArray.length) {
 					$group.hide();
 				}
@@ -176,8 +174,8 @@ var fontSize, textColor = [0, 0, 0], fontFamily = 'Helvetica';
 	var demovoxAdminClass = {
 		createJsonQrData: function (lang, text, fontSize, textColor) {
 			var fields = [];
-			var jsonQrImg = this.getJsonField('qr_img_' + lang + '_json'),
-				jsonQrText = this.getJsonField('qr_text_' + lang + '_json'),
+			var jsonQrImg = this.getField('qr_img_' + lang + '_json'),
+				jsonQrText = this.getField('qr_text_' + lang + '_json'),
 				posArrQrImg = JSON.parse(jsonQrImg),
 				posArrQrText = JSON.parse(jsonQrText);
 
@@ -193,7 +191,7 @@ var fontSize, textColor = [0, 0, 0], fontFamily = 'Helvetica';
 					"x": x,
 					"y": y,
 					"rotate": rotate,
-					"size": this.getField('qr_img_size_' + lang),
+					"size": parseInt(this.getField('qr_img_size_' + lang)),
 					"textX": textX,
 					"textY": textY,
 					"textRotate": textRotate,
@@ -204,14 +202,11 @@ var fontSize, textColor = [0, 0, 0], fontFamily = 'Helvetica';
 			return fields;
 		},
 		getField: function(name) {
-			return parseInt($('#demovox_field_' + name).val())
-		},
-		getJsonField: function (name) {
 			return $('#demovox_field_' + name).val()
 		},
-		createJsonFields: function (value, name, lang) {
-			var fields = [];
-			var json = this.getJsonField(name + '_' + lang + '_json'),
+		createFields: function (value, name, lang) {
+			var fields = [],
+				json = this.getField(name + '_' + lang + '_json'),
 				posArr = JSON.parse(json);
 			posArr.forEach((pos) => {
 				var x = pos.x,
@@ -227,7 +222,7 @@ var fontSize, textColor = [0, 0, 0], fontFamily = 'Helvetica';
 						"font": fontFamily,
 						"color": textColor
 					}
-				])
+				]);
 			})
 			return fields;
 		},

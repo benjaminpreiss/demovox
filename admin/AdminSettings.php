@@ -168,7 +168,7 @@ class AdminSettings extends BaseController
 					break;
 				case'pos_rot':
 					add_settings_field(
-						$id . Config::GLUE_PART . Config::PART_POS_JSON,
+						$id . Config::GLUE_PART . 'json',
 						$field['label'],
 						$callback,
 						$page,
@@ -176,7 +176,7 @@ class AdminSettings extends BaseController
 						$field
 					);
 					$defaultJson = isset($field['defaultJson']) ? ['default' => $field['defaultJson']] : [];
-					register_setting($page, $id . Config::GLUE_PART . Config::PART_POS_JSON, $defaultJson);
+					register_setting($page, $id . Config::GLUE_PART . 'json', $defaultJson);
 					break;
 				case'wpPage':
 					add_settings_field($id, $field['label'], $callback, $page, $field['section'], $field);
@@ -221,17 +221,17 @@ class AdminSettings extends BaseController
 				);
 				break;
 			case 'pos':
-				$valuePosX = Config::getValue($uid, Config::PART_POS_X);
-				$valuePosY = Config::getValue($uid, Config::PART_POS_Y);
+				$valuePosX = Config::getValue($uid, 'x');
+				$valuePosY = Config::getValue($uid, 'y');
 				printf(
 					'<input name="%1$s" id="%1$s" type="number" placeholder="%2$s" value="%3$s" size="5" />',
-					$wpid . Config::GLUE_PART . Config::PART_POS_X,
+					$wpid . Config::GLUE_PART . 'x',
 					'x',
 					$valuePosX
 				);
 				printf(
 					'<input name="%1$s" id="%1$s" type="number" placeholder="%2$s" value="%3$s" size="5" />',
-					$wpid . Config::GLUE_PART . Config::PART_POS_Y,
+					$wpid . Config::GLUE_PART . 'y',
 					'y',
 					$valuePosY
 				);
@@ -246,7 +246,7 @@ class AdminSettings extends BaseController
 				);
 				break;
 			case 'pos_rot':
-				$valuePosHtmlEntity = Config::getValue($uid, Config::PART_POS_JSON);
+				$valuePosHtmlEntity = Config::getValue($uid, 'json');
 				$valuePosHtmlEntity = htmlspecialchars($valuePosHtmlEntity, ENT_COMPAT);
 				$options = [
 					0   => 'Normal orientation',
@@ -256,8 +256,6 @@ class AdminSettings extends BaseController
 				];
 				//decode $valuePosHtmlEntity:
 				$valuePosArr = json_decode(html_entity_decode($valuePosHtmlEntity, ENT_COMPAT), true);
-				$valuePos = $valuePosArr[0];
-				$valueRot = $valuePos['rot'];
 				$linked = strpos($wpid, 'demovox_field_qr_img') !== false || strpos($wpid, 'demovox_field_qr_text') !== false ? ' linked_fields' : '';
 				$lang = '';
 				if (strpos($wpid, 'demovox_field_qr_img') !== false) {
@@ -265,41 +263,26 @@ class AdminSettings extends BaseController
 				} elseif (strpos($wpid, 'demovox_field_qr_text') !== false) {
 					$lang = str_replace('demovox_field_qr_text', '', $wpid);
 				}
-				printf(
-					'<div class="demovox_field_group">'
-				);
-				printf(
-					'<input class="demovox_field_%1$s" type="number" placeholder="%1$s" size="5" />',
-					Config::PART_POS_X
-				);
-				printf(
-					'<input class="demovox_field_%1$s" type="number" placeholder="%1$s" size="5" />',
-					Config::PART_POS_Y
-				);
+				echo '<div class="demovox_field_group">';
+				echo '<input class="demovox_field_x" type="number" placeholder="x" size="5" />';
+				echo '<input class="demovox_field_y" type="number" placeholder="y" size="5" />';
 				$selectClass = [
-					"class" => "demovox_field_" . Config::PART_ROTATION
+					"class" => "demovox_field_rot"
 				];
-				Strings::createSelect($options, $valueRot, null, null, $selectClass);
+				Strings::createSelect($options, $valuePosArr[0]['rot'], null, null, $selectClass);
 				printf('</div>');
 				// Print hidden field
 				printf(
-					'<input name="%1$s" id="%1$s" type="hidden" value="%3$s" class="demovox_field_%4$s%5$s" data-lang="%6$s" />',
-					$wpid . Config::GLUE_PART . Config::PART_POS_JSON,
+					'<input name="%1$s" id="%1$s" type="hidden" value="%3$s" class="demovox_field_%2$s%4$s" data-lang="%5$s" />',
+					$wpid . Config::GLUE_PART . 'json',
 					'json',
 					$valuePosHtmlEntity,
-					Config::PART_POS_JSON,
 					$linked,
 					$lang
 				);
 				//print + and - button
-				printf(
-					'<br/><button type="button" class="%1$s">-</button>',
-					'demovox_field_group_remove'
-				);
-				printf(
-					'<button type="button" class="%1$s">+</button>',
-					'demovox_field_group_add'
-				);
+				echo '<br/><button type="button" class="demovox_field_group_remove">-</button>';
+				echo '<button type="button" class="demovox_field_group_add">+</button>';
 				break;
 			case 'textarea': // If it is a textarea
 				$value = str_replace('"', '&quot;', Config::getValue($uid));

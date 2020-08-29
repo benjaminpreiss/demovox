@@ -75,7 +75,7 @@ $(() => {
 	/**
 	 * @param pdfData Promise<ArrayBuffer>
 	 * @param fields array
-	 * @param qrData array
+	 * @param qrDataArr array
 	 * @returns {Promise<PDFDocument>}
 	 */
 	async function editPdf(pdfData, fields, qrDataArr) {
