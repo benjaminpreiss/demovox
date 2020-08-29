@@ -49,6 +49,12 @@ namespace Demovox;
 			<input name="phone" id="demovox-phone" autocomplete="tel" class="form-control" type="text" minlength="10" maxlength="64"
 			       pattern="((\+[1-9])|(0\d[1-9]))( |\d)+">
 		</div>
+		<div id="demovox-grp-privacy" class="form-group">
+			<div class="form-check">
+				<input class="form-check-input" type="checkbox" value="1" id="demovox-is_privacy" name="is_privacy" required="">
+				<label class="form-check-label" for="demovox-is_privacy">Mit dem Unterzeichnen akzeptiere ich die <a href="https://www.umverkehr.ch/node/229" target="_blank">Datenschutzbestimmungen</a>.</label>
+			</div>
+		</div>
 		<?php if ($optinMode) { ?>
 			<div id="demovox-grp-is_optin" class="form-group">
 				<div class="form-check">
